@@ -7,9 +7,15 @@ using UnityEngine;
 public class Director : MonoBehaviour
 {
     public static List<GameObject> creatures = new List<GameObject>();
+    public static string state = "shop";
+    GameObject endtext;
+    bool endtextActive = false;
+    Vector3 TargetCameraRot;
     void Start()
     {
-
+        TargetCameraRot = new Vector3(90f, 0f, 0f);
+        endtext = GameObject.Find("endtext");
+        //endtext.GetComponent<TextMeshProUGUI>().text = "ltiearly";
         Application.targetFrameRate = 144;
 
         for (int i = 0; i < 100; i++)
@@ -17,15 +23,74 @@ public class Director : MonoBehaviour
             Debug.Log(GetRandomName());
         }
         
+        
+
+
+        StartCoroutine(GameFlow());
+    }
+    void SpawnCreatures()
+    {
         for (int i = 0; i < 10; i++)
         {
             GameObject g = Instantiate(Resources.Load<GameObject>("prefabs/Creature"), new Vector3(Random.Range(-5f, 5f), 1f, Random.Range(-5f, 5f)), Random.rotation);
             g.GetComponent<Creature>().team = Random.Range(0, 3);
             creatures.Add(g);
         }
-
     }
-
+    IEnumerator GameFlow()
+    {
+        while (true)
+        {
+            if (state == "fight")
+            {
+                if (creatures.Count == 0) SpawnCreatures();
+                TargetCameraRot = new Vector3(90f, 0f, 0f);
+                List<int> teams = new List<int>();
+                foreach (GameObject g in creatures)
+                {
+                    if (!teams.Contains(g.GetComponent<Creature>().team))
+                    {
+                        teams.Add(g.GetComponent<Creature>().team);
+                    }
+                }
+                if (teams.Count <= 1)
+                {
+                    endtextActive = true;
+                    if (teams.Count == 0)
+                    {
+                        endtext.GetComponent<TextMeshProUGUI>().text = "Draw";
+                    }
+                    else
+                    {
+                        if (teams[0] == 0)
+                        {
+                            endtext.GetComponent<TextMeshProUGUI>().text = "Victory!";
+                        }
+                        else
+                        {
+                            endtext.GetComponent<TextMeshProUGUI>().text = "Defeated!";
+                        }
+                    }
+                    state = "shop";
+                    for (int i = 0; i < creatures.Count; i++)
+                    {
+                        Destroy(creatures[i]);
+                        creatures.RemoveAt(i);
+                        i--;
+                    }
+                }
+            }
+            else if (state == "shop")
+            {
+                endtextActive = false;
+                TargetCameraRot = new Vector3(0f, 0f, 0f);
+                yield return new WaitForSeconds(10f);
+                state = "fight";
+            }
+            yield return new WaitForSeconds(1f);
+        }
+        
+    }
     void Update()
     {
         
@@ -86,5 +151,8 @@ public class Director : MonoBehaviour
                 i--;
             }
         }
+        transform.eulerAngles = Vector3.Lerp(transform.eulerAngles, TargetCameraRot, .2f);
+        Color c = endtext.GetComponent<TextMeshProUGUI>().color;
+        endtext.GetComponent<TextMeshProUGUI>().color = new Color(c.r, c.g, c.b, Mathf.Lerp(c.a, endtextActive ? 1f : 0f, .2f));
     }
 }

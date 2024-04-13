@@ -7,12 +7,14 @@ public class Creature : MonoBehaviour
     public int team = 0;
     public string creaturename;
     Rigidbody rb;
+    AudioSource aud;
     GameObject targetEnemy;
     public int hp;
     void Start()
     {
         hp = 10;
         rb = GetComponent<Rigidbody>();
+        aud = GetComponent<AudioSource>();
         creaturename = Director.GetRandomName();
         FindNearestEnemy();
     }
@@ -66,6 +68,7 @@ public class Creature : MonoBehaviour
     {
         if (invincibletimer < 0f)
         {
+            aud.PlayOneShot(Resources.Load<AudioClip>("audio/sound" + Random.Range(1, 6)));
             hp--;
             if (hp <= 0)
             {

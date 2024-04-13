@@ -11,7 +11,7 @@ public class Creature : MonoBehaviour
     public int hp;
     void Start()
     {
-        hp = 3;
+        hp = 10;
         rb = GetComponent<Rigidbody>();
         creaturename = Director.GetRandomName();
         FindNearestEnemy();
@@ -33,6 +33,9 @@ public class Creature : MonoBehaviour
         Quaternion targetRotation = Quaternion.LookRotation(targetEnemy.transform.position - transform.position);
         targetRotation = Quaternion.Euler(new Vector3(0f,  targetRotation.eulerAngles.y ,0f));
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 5f * Time.deltaTime);
+
+        Quaternion standuprot = Quaternion.Euler(new Vector3(0f, transform.eulerAngles.y, 0f));
+        transform.rotation = Quaternion.Slerp(transform.rotation, standuprot, 10f * Time.deltaTime);
         rb.AddRelativeForce(Vector3.forward * Time.deltaTime * 1000f);
 
         float maxspeed = 10f;
@@ -79,10 +82,6 @@ public class Creature : MonoBehaviour
                 Destroy(gameObject);
             }
         }
-        
-        
-       
-        
     }
     private void OnCollisionEnter(Collision c)
     {

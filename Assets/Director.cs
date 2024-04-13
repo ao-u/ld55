@@ -76,7 +76,6 @@ public class Director : MonoBehaviour
     {
         for (int i = 0; i < logs.Count; i++)
         {
-            //logs[i].transform.position += new Vector3(0f, .5f, 0f);
             logtimers[i] -= .005f;
             logs[i].GetComponent<TextMeshProUGUI>().color = new Color(logs[i].GetComponent<TextMeshProUGUI>().color.r, logs[i].GetComponent<TextMeshProUGUI>().color.g, logs[i].GetComponent<TextMeshProUGUI>().color.b, logtimers[i]);
             if (logtimers[i] < 0f)

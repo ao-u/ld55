@@ -13,7 +13,7 @@ public class Creature : MonoBehaviour
     public int hp;
     void Start()
     {
-        hp = 10;
+        hp = 5;
         rb = GetComponent<Rigidbody>();
         aud = GetComponent<AudioSource>();
         aud.pitch = Random.Range(.7f, 1.3f);
@@ -106,9 +106,10 @@ public class Creature : MonoBehaviour
         {
             aud.PlayOneShot(Resources.Load<AudioClip>("audio/sound" + Random.Range(1, 6)));
             hp--;
+            invincibletimer = 2f;
             if (hp <= 0)
             {
-                invincibletimer = 1f;
+                
                 for (int i = 0; i < Director.creatures.Count; i++)
                 {
                     if (Director.creatures[i] == gameObject)
@@ -118,6 +119,12 @@ public class Creature : MonoBehaviour
                     }
                 }
                 Director.Log(creaturename + " was killed by " + killer);
+                foreach (Transform t in transform)
+                {
+                    t.AddComponent<Rigidbody>();
+                    t.AddComponent<Limbs>();
+                    t.parent = null;
+                }
                 Destroy(gameObject);
             }
         }
@@ -129,7 +136,7 @@ public class Creature : MonoBehaviour
             Creature cc = c.gameObject.GetComponent<Creature>();
             if (cc.team != team)
             {
-                rb.AddForceAtPosition(-transform.forward * 1000f, transform.position, ForceMode.Force);
+                rb.AddForceAtPosition(-transform.forward * 200f + transform.up * 100f, transform.position, ForceMode.Force);
                 cc.TakeDamage(creaturename);
                 FindNearestEnemy();
                 

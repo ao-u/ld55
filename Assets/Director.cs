@@ -33,7 +33,7 @@ public class Director : MonoBehaviour
         for (int i = 0; i < 10; i++)
         {
             GameObject g = Instantiate(Resources.Load<GameObject>("prefabs/Creature"), new Vector3(Random.Range(-5f, 5f), 1f, Random.Range(-5f, 5f)), Random.rotation);
-            g.GetComponent<Creature>().team = Random.Range(0, 3);
+            g.GetComponent<Creature>().team = i < 5 ? 0 : 1;
             creatures.Add(g);
         }
     }
@@ -73,7 +73,7 @@ public class Director : MonoBehaviour
                         }
                     }
                     choice = 0;
-                    state = "shop";
+                    
                     for (int i = 0; i < creatures.Count; i++)
                     {
                         Destroy(creatures[i]);
@@ -81,6 +81,7 @@ public class Director : MonoBehaviour
                         i--;
                     }
                     yield return new WaitForSeconds(2f);
+                    state = "shop";
                 }
             }
             else if (state == "shop")
@@ -158,7 +159,19 @@ public class Director : MonoBehaviour
                 i--;
             }
         }
-        transform.eulerAngles = Vector3.Lerp(transform.eulerAngles, TargetCameraRot, .1f);
+        if (state == "fight")
+        {
+            transform.localEulerAngles = Vector3.Lerp(transform.localEulerAngles, new Vector3(45f, 0f, 0f), .1f);
+            transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(0f, 15f, -15f), .1f);
+            transform.parent.Rotate(new Vector3(0f, .2f, 0f));
+        }
+        else if (state == "shop")
+        {
+            transform.localEulerAngles = Vector3.Lerp(transform.localEulerAngles, new Vector3(0f, 0f, 0f), .1f);
+            transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(0f, 22f, 0f), .1f);
+            transform.parent.localEulerAngles = Vector3.Lerp(transform.parent.localEulerAngles, new Vector3(0f, 0f, 0f), .1f);
+        }
+       
         Color c = endtext.GetComponent<TextMeshProUGUI>().color;
         endtext.GetComponent<TextMeshProUGUI>().color = new Color(c.r, c.g, c.b, Mathf.Lerp(c.a, endtextActive ? 1f : 0f, .2f));
     }

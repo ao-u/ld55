@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Creature : MonoBehaviour
@@ -17,6 +18,40 @@ public class Creature : MonoBehaviour
         aud = GetComponent<AudioSource>();
         aud.pitch = Random.Range(.7f, 1.3f);
         creaturename = Director.GetRandomName();
+
+        //randomize body
+        GameObject body = Instantiate(Resources.Load<GameObject>("prefabs/body/body" + Random.Range(1, 4)), transform.parent);
+        body.transform.SetParent(transform, false);
+
+        //randomize arms
+        GameObject arms = Instantiate(Resources.Load<GameObject>("prefabs/arms/arms" + Random.Range(1, 4)), transform.parent);
+
+        //slightly randomize arm position and scale
+        arms.transform.position = new Vector3(arms.transform.position.x, arms.transform.position.y + Random.Range(-0.5f, 0.5f));
+        float armx = Random.Range(-0.2f, 0.2f);
+        float army = Random.Range(-0.2f, 0.2f);
+        float armz = Random.Range(-0.1f, 0.1f);
+        foreach (Transform child in arms.transform)
+        {
+            child.localScale = new Vector3(child.localScale.x + armx, child.localScale.y + army, child.localScale.z + armz);
+        }
+        arms.transform.SetParent(transform, false);
+
+        //randomize eyes
+        GameObject eyes = Instantiate(Resources.Load<GameObject>("prefabs/eyes/eyes" + Random.Range(1, 2)), transform.parent);
+
+        //slightly randomize eye position and scale
+        eyes.transform.position = new Vector3(eyes.transform.position.x, eyes.transform.position.y + Random.Range(-0.2f, 0f));
+
+        float eyex = Random.Range(-0.15f, 0.15f);
+        float eyey = Random.Range(-0.15f, 0.15f);
+        float eyez = Random.Range(-0.15f, 0.15f);
+        foreach (Transform child in eyes.transform)
+        {
+            child.localScale = new Vector3(child.localScale.x + eyex, child.localScale.y + eyey, child.localScale.z + eyez);
+        }
+        eyes.transform.SetParent(transform, false);
+
         FindNearestEnemy();
     }
     

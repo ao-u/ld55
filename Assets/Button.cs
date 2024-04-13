@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using UnityEngine;
 
 public class Button : MonoBehaviour
 {
     public string state = "none";
+    public int choice;
     Vector3 baseSize;
     void Start()
     {
@@ -23,7 +25,10 @@ public class Button : MonoBehaviour
                 state = "hovered";
             }
         }
-
+        if (state == "hovered" && Input.GetKey(KeyCode.Mouse0))
+        {
+            Director.choice = choice;
+        }
 
 
 

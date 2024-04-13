@@ -37,6 +37,7 @@ public class Director : MonoBehaviour
             creatures.Add(g);
         }
     }
+    public static int choice = 0;
     IEnumerator GameFlow()
     {
         while (true)
@@ -71,6 +72,7 @@ public class Director : MonoBehaviour
                             endtext.GetComponent<TextMeshProUGUI>().text = "Defeated!";
                         }
                     }
+                    choice = 0;
                     state = "shop";
                     for (int i = 0; i < creatures.Count; i++)
                     {
@@ -78,16 +80,19 @@ public class Director : MonoBehaviour
                         creatures.RemoveAt(i);
                         i--;
                     }
+                    yield return new WaitForSeconds(2f);
                 }
             }
             else if (state == "shop")
             {
                 endtextActive = false;
                 TargetCameraRot = new Vector3(0f, 0f, 0f);
-                yield return new WaitForSeconds(10f);
+                yield return new WaitUntil(() => choice >= 1);
+                
                 state = "fight";
             }
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(.2f);
+
         }
         
     }
@@ -125,6 +130,8 @@ public class Director : MonoBehaviour
     }
     public static List<GameObject> logs = new List<GameObject>();
     public static List<float> logtimers = new List<float>();
+    public static List<GameObject> moneylogs = new List<GameObject>();
+    public static List<float> moneylogtimers = new List<float>();
     public static void Log(string message)
     {
         GameObject c = GameObject.Find("Log");
@@ -151,7 +158,7 @@ public class Director : MonoBehaviour
                 i--;
             }
         }
-        transform.eulerAngles = Vector3.Lerp(transform.eulerAngles, TargetCameraRot, .2f);
+        transform.eulerAngles = Vector3.Lerp(transform.eulerAngles, TargetCameraRot, .1f);
         Color c = endtext.GetComponent<TextMeshProUGUI>().color;
         endtext.GetComponent<TextMeshProUGUI>().color = new Color(c.r, c.g, c.b, Mathf.Lerp(c.a, endtextActive ? 1f : 0f, .2f));
     }

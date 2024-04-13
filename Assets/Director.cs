@@ -9,6 +9,9 @@ public class Director : MonoBehaviour
     public static List<GameObject> creatures = new List<GameObject>();
     void Start()
     {
+
+        Application.targetFrameRate = 144;
+
         for (int i = 0; i < 100; i++)
         {
             Debug.Log(GetRandomName());

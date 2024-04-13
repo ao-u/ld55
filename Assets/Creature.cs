@@ -22,6 +22,8 @@ public class Creature : MonoBehaviour
     void FixedUpdate()
     {
         Movement();
+        if (invincibletimer > 0f) invincibletimer -= .02f;
+        invincible = invincibletimer > 0f;
     }
     
     void Movement()
@@ -55,22 +57,31 @@ public class Creature : MonoBehaviour
 
         }
     }
+    public bool invincible;
+    float invincibletimer = -1f;
     public void TakeDamage(string killer)
     {
-        hp--;
-        if (hp >= 0)
+        if (invincibletimer < 0f)
         {
-            for (int i = 0; i < Director.creatures.Count; i++)
+            hp--;
+            if (hp <= 0)
             {
-                if (Director.creatures[i] == gameObject)
+                invincibletimer = 1f;
+                for (int i = 0; i < Director.creatures.Count; i++)
                 {
-                    Director.creatures.RemoveAt(i);
-                    break;
+                    if (Director.creatures[i] == gameObject)
+                    {
+                        Director.creatures.RemoveAt(i);
+                        break;
+                    }
                 }
+                Director.Log(creaturename + " was killed by " + killer);
+                Destroy(gameObject);
             }
-            Director.Log(creaturename + " was killed by " + killer);
-            Destroy(gameObject);
         }
+        
+        
+       
         
     }
     private void OnCollisionEnter(Collision c)
@@ -80,8 +91,10 @@ public class Creature : MonoBehaviour
             Creature cc = c.gameObject.GetComponent<Creature>();
             if (cc.team != team)
             {
+                rb.AddForceAtPosition(-transform.forward * 1000f, transform.position, ForceMode.Force);
                 cc.TakeDamage(creaturename);
                 FindNearestEnemy();
+                
             }
             
         }

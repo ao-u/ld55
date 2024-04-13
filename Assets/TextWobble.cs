@@ -57,9 +57,9 @@ public class TextWobble : MonoBehaviour
         mesh.colors = colors;
         textMesh.canvasRenderer.SetMesh(mesh);
     }
-
+    public float dividedby = 3f;
     Vector2 Wobble(float time)
     {
-        return new Vector2(Mathf.Sin(time * 3.3f), Mathf.Cos(time * 2.5f)) / 3f;
+        return new Vector2(Mathf.Sin(time * 3.3f), Mathf.Cos(time * 2.5f)) / dividedby;
     }
 }

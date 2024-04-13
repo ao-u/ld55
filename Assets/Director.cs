@@ -10,12 +10,11 @@ public class Director : MonoBehaviour
     public static string state = "shop";
     GameObject endtext;
     bool endtextActive = false;
-    Vector3 TargetCameraRot;
+    public static int gold = 0;
     void Start()
     {
-        TargetCameraRot = new Vector3(90f, 0f, 0f);
+        GameObject.Find("Money").GetComponent<TextMeshProUGUI>().text = gold + " G";
         endtext = GameObject.Find("endtext");
-        //endtext.GetComponent<TextMeshProUGUI>().text = "ltiearly";
         Application.targetFrameRate = 144;
 
         for (int i = 0; i < 100; i++)
@@ -45,7 +44,6 @@ public class Director : MonoBehaviour
             if (state == "fight")
             {
                 if (creatures.Count == 0) SpawnCreatures();
-                TargetCameraRot = new Vector3(90f, 0f, 0f);
                 List<int> teams = new List<int>();
                 foreach (GameObject g in creatures)
                 {
@@ -87,7 +85,6 @@ public class Director : MonoBehaviour
             else if (state == "shop")
             {
                 endtextActive = false;
-                TargetCameraRot = new Vector3(0f, 0f, 0f);
                 yield return new WaitUntil(() => choice >= 1);
                 
                 state = "fight";
@@ -133,17 +130,36 @@ public class Director : MonoBehaviour
     public static List<float> logtimers = new List<float>();
     public static List<GameObject> moneylogs = new List<GameObject>();
     public static List<float> moneylogtimers = new List<float>();
-    public static void Log(string message)
+    public static void Log(string message, int golddiff)
     {
-        GameObject c = GameObject.Find("Log");
-        GameObject l = Instantiate(Resources.Load<GameObject>("prefabs/LogText"), c.transform.position, Quaternion.identity, c.transform);
-        l.GetComponent<TextMeshProUGUI>().text = message;
-        logs.Add(l);
-        logtimers.Add(1f);
-        for (int i = 0; i < logs.Count; i++)
+        if (golddiff != 0)
         {
-            logs[logs.Count - i - 1].transform.position = new Vector3(c.transform.position.x, c.transform.position.y - 40f * i, c.transform.position.z);
+            GameObject c = GameObject.Find("MoneyLog");
+            GameObject l = Instantiate(Resources.Load<GameObject>("prefabs/LogText"), c.transform.position, Quaternion.identity, c.transform);
+            l.GetComponent<TextMeshProUGUI>().text = message;
+            l.GetComponent<TextMeshProUGUI>().color = new Color(1f, 1f, .5f);
+            moneylogs.Add(l);
+            moneylogtimers.Add(1f);
+            for (int i = 0; i < moneylogs.Count; i++)
+            {
+                moneylogs[moneylogs.Count - i - 1].transform.position = new Vector3(c.transform.position.x, c.transform.position.y - 40f * i, c.transform.position.z);
+            }
+            gold += golddiff;
+            GameObject.Find("Money").GetComponent<TextMeshProUGUI>().text = gold + " G";
         }
+        else
+        {
+            GameObject c = GameObject.Find("Log");
+            GameObject l = Instantiate(Resources.Load<GameObject>("prefabs/LogText"), c.transform.position, Quaternion.identity, c.transform);
+            l.GetComponent<TextMeshProUGUI>().text = message;
+            logs.Add(l);
+            logtimers.Add(1f);
+            for (int i = 0; i < logs.Count; i++)
+            {
+                logs[logs.Count - i - 1].transform.position = new Vector3(c.transform.position.x, c.transform.position.y - 40f * i, c.transform.position.z);
+            }
+        }
+        
     }
     private void FixedUpdate()
     {
@@ -156,6 +172,18 @@ public class Director : MonoBehaviour
                 Destroy(logs[i]);
                 logs.RemoveAt(i);
                 logtimers.RemoveAt(i);
+                i--;
+            }
+        }
+        for (int i = 0; i < moneylogs.Count; i++)
+        {
+            moneylogtimers[i] -= .05f;
+            moneylogs[i].GetComponent<TextMeshProUGUI>().color = new Color(moneylogs[i].GetComponent<TextMeshProUGUI>().color.r, moneylogs[i].GetComponent<TextMeshProUGUI>().color.g, moneylogs[i].GetComponent<TextMeshProUGUI>().color.b, moneylogtimers[i]);
+            if (moneylogtimers[i] < 0f)
+            {
+                Destroy(moneylogs[i]);
+                moneylogs.RemoveAt(i);
+                moneylogtimers.RemoveAt(i);
                 i--;
             }
         }

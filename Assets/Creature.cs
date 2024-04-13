@@ -106,7 +106,7 @@ public class Creature : MonoBehaviour
         {
             aud.PlayOneShot(Resources.Load<AudioClip>("audio/sound" + Random.Range(1, 6)));
             hp--;
-            invincibletimer = 2f;
+            invincibletimer = .5f;
             if (hp <= 0)
             {
                 
@@ -118,10 +118,13 @@ public class Creature : MonoBehaviour
                         break;
                     }
                 }
-                Director.Log(creaturename + " was killed by " + killer);
+                Director.Log(creaturename + " was killed by " + killer, 0);
+                Director.Log("+1 G", 1);
                 foreach (Transform t in transform)
                 {
                     t.AddComponent<Rigidbody>();
+                    float diff = 2f;
+                    t.GetComponent<Rigidbody>().velocity = new Vector3(UnityEngine.Random.Range(-diff, diff), UnityEngine.Random.Range(-diff, diff), UnityEngine.Random.Range(-diff, diff));
                     t.AddComponent<Limbs>();
                     t.parent = null;
                 }

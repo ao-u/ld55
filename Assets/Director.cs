@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 
 public class Director : MonoBehaviour
 {
-    public static List<GameObject> creatures = new List<GameObject>();
+    public static List<GameObject> allCreatures = new List<GameObject>();
+    public static List<GameObject> playerCreatures = new List<GameObject>();
     public static string state = "shop";
     GameObject endtext;
     bool endtextActive = false;
@@ -33,7 +35,8 @@ public class Director : MonoBehaviour
         {
             GameObject g = Instantiate(Resources.Load<GameObject>("prefabs/Creature"), new Vector3(Random.Range(-5f, 5f), 1f, Random.Range(-5f, 5f)), Random.rotation);
             g.GetComponent<Creature>().team = i < 5 ? 0 : 1;
-            creatures.Add(g);
+            g.GetComponent<Creature>().state = "fight";
+            allCreatures.Add(g);
         }
     }
     public static int choice = 0;
@@ -43,9 +46,9 @@ public class Director : MonoBehaviour
         {
             if (state == "fight")
             {
-                if (creatures.Count == 0) SpawnCreatures();
+                if (allCreatures.Count == 0) SpawnCreatures();
                 List<int> teams = new List<int>();
-                foreach (GameObject g in creatures)
+                foreach (GameObject g in allCreatures)
                 {
                     if (!teams.Contains(g.GetComponent<Creature>().team))
                     {
@@ -70,24 +73,34 @@ public class Director : MonoBehaviour
                             endtext.GetComponent<TextMeshProUGUI>().text = "Defeated!";
                         }
                     }
-                    choice = 0;
                     
-                    for (int i = 0; i < creatures.Count; i++)
+                    
+                    for (int i = 0; i < allCreatures.Count; i++)
                     {
-                        Destroy(creatures[i]);
-                        creatures.RemoveAt(i);
+                        Destroy(allCreatures[i]);
+                        allCreatures.RemoveAt(i);
                         i--;
                     }
                     yield return new WaitForSeconds(2f);
+                    choice = 0;
                     state = "shop";
                 }
             }
             else if (state == "shop")
             {
                 endtextActive = false;
-                yield return new WaitUntil(() => choice >= 1);
+                yield return new WaitUntil(() => choice != 0);
+                if (choice == 1)
+                {
+                    GameObject g = Instantiate(Resources.Load<GameObject>("prefabs/Creature"), new Vector3(Random.Range(-5f, 5f), 1f, Random.Range(-5f, 5f)), Random.rotation);
+                    g.GetComponent<Creature>().team = 0;
+                    g.GetComponent<Creature>().state = "none";
+                }
+                else if (choice == 2)
+                {
+                    state = "fight";
+                }
                 
-                state = "fight";
             }
             yield return new WaitForSeconds(.2f);
 

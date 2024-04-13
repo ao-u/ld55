@@ -15,6 +15,7 @@ public class Creature : MonoBehaviour
         hp = 10;
         rb = GetComponent<Rigidbody>();
         aud = GetComponent<AudioSource>();
+        aud.pitch = Random.Range(.7f, 1.3f);
         creaturename = Director.GetRandomName();
         FindNearestEnemy();
     }

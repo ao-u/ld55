@@ -35,6 +35,7 @@ public class Director : MonoBehaviour
             playerCreatures[i].transform.position = new Vector3(-7f, 1f, i * 1.5f);
             allCreatures.Add(playerCreatures[i]);
             playerCreatures[i].GetComponent<Creature>().state = "fight";
+            playerCreatures[i].GetComponent<Creature>().hp = playerCreatures[i].GetComponent<Creature>().maxhp;
         }
 
 

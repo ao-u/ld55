@@ -11,7 +11,7 @@ public class Limbs : MonoBehaviour
     IEnumerator Death()
     {
         yield return new WaitForSeconds(1f);
-        GetComponentInChildren<Collider>().isTrigger = true;
+        //GetComponentInChildren<Collider>().isTrigger = true;
         GetComponent<Rigidbody>().useGravity = false;
         for (int i =0; i < 100; i++)
         {

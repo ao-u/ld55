@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -11,11 +12,45 @@ public class Creature : MonoBehaviour
     Rigidbody rb;
     AudioSource aud;
     GameObject targetEnemy;
-    public int hp;
+    
     GameObject nametag;
+    GameObject statpage;
+    //stats
+    public int hp;
+
+    public int maxhp;
+    public int speed;
+    public int attackspeed;
+
     void Start()
     {
-        hp = 5;
+        int totalstats = 10;
+        int maxstatvalue = 5;
+        maxhp = 0;
+        speed = 0;
+        attackspeed = 0;
+        for (int i = 0; i < totalstats; i++)
+        {
+            int rng = Random.Range(0, 3);
+            if (rng == 0 && maxhp < maxstatvalue)
+            {
+                maxhp++;
+            }
+            else if (rng == 1 && speed < maxstatvalue)
+            {
+                speed++;
+            }
+            else if (rng == 2 && attackspeed < maxstatvalue)
+            {
+                attackspeed++;
+            }
+            else i--;
+        }
+
+        Debug.Log(maxhp + " max hp " + speed + " speed " + attackspeed + " atk speed");
+
+        hp = maxhp;
+
         rb = GetComponent<Rigidbody>();
         aud = GetComponent<AudioSource>();
         aud.pitch = Random.Range(.7f, 1.3f);
@@ -24,7 +59,7 @@ public class Creature : MonoBehaviour
 
 
         //randomize body
-        GameObject body = Instantiate(Resources.Load<GameObject>("prefabs/body/body" + Random.Range(1, 4)), transform.parent);
+        GameObject body = Instantiate(Resources.Load<GameObject>("prefabs/body/body" + Random.Range(1, 6)), transform.parent);
         body.transform.SetParent(transform, false);
 
         //randomize arms
@@ -42,7 +77,7 @@ public class Creature : MonoBehaviour
         arms.transform.SetParent(transform, false);
 
         //randomize eyes
-        GameObject eyes = Instantiate(Resources.Load<GameObject>("prefabs/eyes/eyes" + Random.Range(1, 2)), transform.parent);
+        GameObject eyes = Instantiate(Resources.Load<GameObject>("prefabs/eyes/eyes1"), transform.parent);
 
         //slightly randomize eye position and scale
         eyes.transform.position = new Vector3(eyes.transform.position.x, eyes.transform.position.y + Random.Range(-0.2f, 0f));
@@ -59,34 +94,53 @@ public class Creature : MonoBehaviour
 
         nametag = Instantiate(Resources.Load<GameObject>("prefabs/NameTag"), Vector3.zero, Quaternion.identity, GameObject.Find("MainCanvas").transform);
         nametag.GetComponent<TextMeshProUGUI>().text = creaturename;
+        nametag.transform.position = Camera.main.WorldToScreenPoint(transform.position);
+        nametag.transform.position -= new Vector3(0, 90f, 0f);
 
+        statpage = Instantiate(Resources.Load<GameObject>("prefabs/LogText"), Vector3.zero, Quaternion.identity, GameObject.Find("MainCanvas").transform);
+       
+        statpagestring =
+            "MAX HP:\t" + string.Concat(Enumerable.Repeat("X", maxhp)) + "\n" +
+            "SPEED:\t" + string.Concat(Enumerable.Repeat("X", speed)) + "\n" +
+            "ATK SPD:\t" + string.Concat(Enumerable.Repeat("X", attackspeed));
 
-
-
+        statpage.GetComponent<TextMeshProUGUI>().text = statpagestring;
 
         FindNearestEnemy();
     }
+    string statpagestring;
     public string state = "none";
     private void Update()
     {
         //Vector3 realpos = transform.position - new Vector3(0, 5f, 0f);
         nametag.transform.position = Camera.main.WorldToScreenPoint(transform.position);
-        nametag.transform.position -= new Vector3(0, 60f, 0f);
+        nametag.transform.position -= new Vector3(0, 90f, 0f);
+
+        statpage.transform.position = Camera.main.WorldToScreenPoint(transform.position);
+        statpage.transform.position += new Vector3(-20f, 200f, 0f);
     }
     void FixedUpdate()
     {
         if (state == "fight")
-        Movement();
+        {
+            Movement();
+            statpage.GetComponent<TextMeshProUGUI>().color = new Color(0f, 0f, 0f, 0f);
+        }
+        
         if (state == "standstill")
         {
             rb.velocity = Vector3.zero;
             transform.localEulerAngles = new Vector3(0, 225f, 0f);
+            statpage.GetComponent<TextMeshProUGUI>().color = new Color(1f, 1f, 1f, 1f);
         }
         
     }
     
     void Movement()
     {
+        float speedasmult = ((speed - 1) / 2f) + 1f;
+        //Debug.Log(speed + " SPEED " + speedasmult + " SPEED MULT");
+
         if (Random.Range(0, 5) == 0) FindNearestEnemy();
         if (targetEnemy == null) FindNearestEnemy();
         Quaternion targetRotation = Quaternion.LookRotation(targetEnemy.transform.position - transform.position);
@@ -95,9 +149,9 @@ public class Creature : MonoBehaviour
 
         Quaternion standuprot = Quaternion.Euler(new Vector3(0f, transform.eulerAngles.y, 0f));
         transform.rotation = Quaternion.Slerp(transform.rotation, standuprot, 10f * Time.deltaTime);
-        rb.AddRelativeForce(Vector3.forward * Time.deltaTime * 1000f);
+        rb.AddRelativeForce(Vector3.forward * Time.deltaTime * 1000f * speedasmult);
 
-        float maxspeed = 10f;
+        float maxspeed = 10f * speedasmult;
         Vector3 r = rb.velocity;
         rb.velocity = new Vector3(Mathf.Clamp(r.x, -maxspeed, maxspeed), Mathf.Clamp(r.y, -maxspeed * 2f, 0f), Mathf.Clamp(r.z, -maxspeed, maxspeed));
 
@@ -166,11 +220,13 @@ public class Creature : MonoBehaviour
         foreach (Transform t in transform)
         {
             t.AddComponent<Rigidbody>();
-            float diff = 2f;
+            //t.AddComponent<BoxCOl>();
+            float diff = 6f;
             t.GetComponent<Rigidbody>().velocity = new Vector3(UnityEngine.Random.Range(-diff, diff), UnityEngine.Random.Range(-diff, diff), UnityEngine.Random.Range(-diff, diff));
             t.AddComponent<Limbs>();
             t.parent = null;
         }
+        Destroy(statpage);
         Destroy(nametag);
         Destroy(gameObject);
     }

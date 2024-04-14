@@ -16,6 +16,7 @@ public class Creature : MonoBehaviour
     GameObject nametag;
     GameObject statpage;
     //stats
+    public int totalstats = 10;
     public int hp;
 
     public int maxhp;
@@ -25,8 +26,11 @@ public class Creature : MonoBehaviour
     void Start()
     {
         upgradeprice = 1;
-        int totalstats = 10;
-        int maxstatvalue = 5;
+        if (team == 0)
+        {
+            totalstats = Random.Range(8, 18);
+        }
+        int maxstatvalue = 99;
         maxhp = 0;
         speed = 0;
         damage = 0;
@@ -47,8 +51,10 @@ public class Creature : MonoBehaviour
             }
             else i--;
         }
-
-        Debug.Log(maxhp + " max hp " + speed + " speed " + damage + " atk speed");
+        maxhp = Mathf.Max(maxhp, 1);
+        speed = Mathf.Max(speed, 1);
+        damage = Mathf.Max(damage, 1);
+        //Debug.Log(maxhp + " max hp " + speed + " speed " + damage + " atk speed");
 
         hp = maxhp * 4;
 
@@ -188,7 +194,7 @@ public class Creature : MonoBehaviour
         if (targetEnemy == null) FindNearestEnemy();
         Quaternion targetRotation = Quaternion.LookRotation(targetEnemy.transform.position - transform.position);
         targetRotation = Quaternion.Euler(new Vector3(0f,  targetRotation.eulerAngles.y ,0f));
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.deltaTime * Mathf.Max(speedasmult / 2f, 1f));
 
         Quaternion standuprot = Quaternion.Euler(new Vector3(0f, transform.eulerAngles.y, 0f));
         transform.rotation = Quaternion.Slerp(transform.rotation, standuprot, 20f * Time.deltaTime);
@@ -226,12 +232,16 @@ public class Creature : MonoBehaviour
     {
         if (invincibletimer < 0f)
         {
-            aud.PlayOneShot(Resources.Load<AudioClip>("audio/sound" + Random.Range(1, 6)));
+            
             hp -= damage;
             invincibletimer = .5f;
             if (hp <= 0)
             {
                 KillThis(attacker, false);
+            }
+            else
+            {
+                aud.PlayOneShot(Resources.Load<AudioClip>("audio/sound" + Random.Range(1, 6)));
             }
         }
     }
@@ -240,7 +250,12 @@ public class Creature : MonoBehaviour
         if (!silent)
         {
             Director.Log(creaturename + " was killed by " + killer, 0);
-            Director.Log("+1 G", 1);
+            if (team != 0)
+            {
+                int c = (int)(Random.Range(1f, 3f) * Director.level);
+                Director.Log("+"+c+" G", c);
+            }
+            GameObject.Find("Main Camera").GetComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("audio/death" + Random.Range(1, 5)), .5f);
         }
 
         for (int i = 0; i < Director.allCreatures.Count; i++)

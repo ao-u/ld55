@@ -23,9 +23,9 @@ public class Director : MonoBehaviour
         endtext = GameObject.Find("endtext");
         Application.targetFrameRate = 144;
 
-       
-        
-        
+
+
+        GameObject.Find("Level").GetComponent<TextMeshProUGUI>().text = "Level " + level;
 
 
         StartCoroutine(GameFlow());
@@ -34,22 +34,26 @@ public class Director : MonoBehaviour
     {
         for (int i = 0; i < playerCreatures.Count; i++)
         {
-            playerCreatures[i].transform.position = new Vector3(-7f, 1f, i * 1.5f);
+            playerCreatures[i].transform.position = new Vector3(-7f, 1f, Random.Range(-5f, 5f));
             allCreatures.Add(playerCreatures[i]);
             playerCreatures[i].GetComponent<Creature>().state = "fight";
             playerCreatures[i].GetComponent<Creature>().hp = playerCreatures[i].GetComponent<Creature>().maxhp * 4;
+            GameObject appear = Instantiate(Resources.Load<GameObject>("prefabs/appear"), playerCreatures[i].transform.position, Random.rotation);
         }
 
-
-        for (int i = 0; i < 4; i++)
+        int enemies = level > 10 ? 4 + (level - 10) : 4;
+        for (int i = 0; i < enemies; i++)
         {
             GameObject g = Instantiate(Resources.Load<GameObject>("prefabs/Creature"), new Vector3(Random.Range(-5f, 5f), 1f, Random.Range(-5f, 5f)), Random.rotation);
-            g.transform.position = new Vector3(7f, 1f, i * 1.5f);
+            g.transform.position = new Vector3(7f, 1f, Random.Range(-5f, 5f));
             g.GetComponent<Creature>().team = 1;
             g.GetComponent<Creature>().state = "fight";
+            g.GetComponent<Creature>().totalstats = 3 + level;
+            GameObject appear = Instantiate(Resources.Load<GameObject>("prefabs/appear"), g.transform.position, Random.rotation);
             allCreatures.Add(g);
         }
     }
+    public static int level = 0;
     public static int choice = 0;
     IEnumerator GameFlow()
     {
@@ -88,9 +92,11 @@ public class Director : MonoBehaviour
                     yield return new WaitForSeconds(1f);
 
                     for (int i = 0; i < playerCreatures.Count; i++) {
+                        GameObject appear = Instantiate(Resources.Load<GameObject>("prefabs/disappear"), playerCreatures[i].transform.position, Random.rotation);
                         playerCreatures[i].transform.position = GameObject.Find("place" + i).transform.position;
                         playerCreatures[i].transform.position += new Vector3(0f, 2f, 0f);
                         playerCreatures[i].GetComponent<Creature>().state = "standstill";
+                        
                     }
                     object[] objj = FindObjectsOfType(typeof(GameObject));
                     foreach (object o in objj)
@@ -135,6 +141,7 @@ public class Director : MonoBehaviour
                         g.transform.position += new Vector3(0f, 1f, 0f);
                         g.GetComponent<Creature>().team = 0;
                         g.GetComponent<Creature>().state = "standstill";
+                        GameObject appear = Instantiate(Resources.Load<GameObject>("prefabs/appear"), g.transform.position, Random.rotation);
 
                         GameObject.Find("summonbutton").GetComponent<Button>().flipped = true;
                         GameObject.Find("continuebutton").GetComponent<Button>().flipped = true;
@@ -167,6 +174,8 @@ public class Director : MonoBehaviour
                 {
                     GetComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("audio/click1"));
                     state = "fight";
+                    level++;
+                    GameObject.Find("Level").GetComponent<TextMeshProUGUI>().text = "Level " + level;
                     SpawnCreatures();
                     yield return new WaitForSeconds(1f);
                 }
@@ -198,10 +207,7 @@ public class Director : MonoBehaviour
         }
         
     }
-    void Update()
-    {
-        
-    }
+   
 
 
 
@@ -223,6 +229,7 @@ public class Director : MonoBehaviour
     public static string GetRandomName()
     {
         if (Random.Range(0, 1000) == 0) return "John";
+        if (Random.Range(0, 1000) == 0) return "Glorble Glorble";
         string name = "";
         name += prefix[Random.Range(0, prefix.Count)];
         int middles = Random.Range(0, 2);
@@ -266,6 +273,7 @@ public class Director : MonoBehaviour
         }
         
     }
+    bool cameraleft = true;
     private void FixedUpdate()
     {
         for (int i = 0; i < logs.Count; i++)
@@ -296,7 +304,15 @@ public class Director : MonoBehaviour
         {
             transform.localEulerAngles = Vector3.Lerp(transform.localEulerAngles, new Vector3(45f, 0f, 0f), .1f);
             transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(0f, 15f, -15f), .1f);
-            transform.parent.Rotate(new Vector3(0f, .2f, 0f));
+            if (transform.parent.eulerAngles.y > 140f && cameraleft)
+            {
+                cameraleft = false;
+            }
+            if (transform.parent.eulerAngles.y > 200f && !cameraleft)
+            {
+                cameraleft = true;
+            }
+            transform.parent.Rotate(new Vector3(0f, cameraleft ? .2f : -.2f, 0f));
         }
         else if (state == "shop")
         {
@@ -326,4 +342,5 @@ public class Director : MonoBehaviour
             Debug.Log(allCreatures.Count + " TOTAL CREATURES");
         }
     }
+    
 }

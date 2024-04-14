@@ -10,9 +10,9 @@ public class Limbs : MonoBehaviour
     }
     IEnumerator Death()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
         //GetComponentInChildren<Collider>().isTrigger = true;
-        GetComponent<Rigidbody>().useGravity = false;
+        //GetComponent<Rigidbody>().useGravity = false;
         for (int i =0; i < 100; i++)
         {
             transform.position -= new Vector3(0f, .05f, 0f);

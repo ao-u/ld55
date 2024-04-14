@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ public class Creature : MonoBehaviour
     AudioSource aud;
     GameObject targetEnemy;
     public int hp;
+    GameObject nametag;
     void Start()
     {
         hp = 5;
@@ -18,6 +20,8 @@ public class Creature : MonoBehaviour
         aud = GetComponent<AudioSource>();
         aud.pitch = Random.Range(.7f, 1.3f);
         creaturename = Director.GetRandomName();
+
+
 
         //randomize body
         GameObject body = Instantiate(Resources.Load<GameObject>("prefabs/body/body" + Random.Range(1, 4)), transform.parent);
@@ -52,13 +56,32 @@ public class Creature : MonoBehaviour
         }
         eyes.transform.SetParent(transform, false);
 
+
+        nametag = Instantiate(Resources.Load<GameObject>("prefabs/NameTag"), Vector3.zero, Quaternion.identity, GameObject.Find("MainCanvas").transform);
+        nametag.GetComponent<TextMeshProUGUI>().text = creaturename;
+
+
+
+
+
         FindNearestEnemy();
     }
     public string state = "none";
+    private void Update()
+    {
+        //Vector3 realpos = transform.position - new Vector3(0, 5f, 0f);
+        nametag.transform.position = Camera.main.WorldToScreenPoint(transform.position);
+        nametag.transform.position -= new Vector3(0, 60f, 0f);
+    }
     void FixedUpdate()
     {
         if (state == "fight")
         Movement();
+        if (state == "standstill")
+        {
+            rb.velocity = Vector3.zero;
+            transform.localEulerAngles = new Vector3(0, 225f, 0f);
+        }
         
     }
     
@@ -68,7 +91,7 @@ public class Creature : MonoBehaviour
         if (targetEnemy == null) FindNearestEnemy();
         Quaternion targetRotation = Quaternion.LookRotation(targetEnemy.transform.position - transform.position);
         targetRotation = Quaternion.Euler(new Vector3(0f,  targetRotation.eulerAngles.y ,0f));
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 5f * Time.deltaTime);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 7f * Time.deltaTime);
 
         Quaternion standuprot = Quaternion.Euler(new Vector3(0f, transform.eulerAngles.y, 0f));
         transform.rotation = Quaternion.Slerp(transform.rotation, standuprot, 10f * Time.deltaTime);
@@ -84,7 +107,7 @@ public class Creature : MonoBehaviour
     void FindNearestEnemy()
     {
         float lowestDistance = 99999f;
-        targetEnemy = gameObject;
+        targetEnemy = GameObject.Find("CameraHolder");
         foreach (GameObject g in Director.allCreatures)
         {
             if (g != gameObject && g.GetComponent<Creature>().team != team)
@@ -101,7 +124,7 @@ public class Creature : MonoBehaviour
     }
     public bool invincible;
     float invincibletimer = -1f;
-    public void TakeDamage(string killer)
+    public void TakeDamage(string attacker)
     {
         if (invincibletimer < 0f)
         {
@@ -110,28 +133,46 @@ public class Creature : MonoBehaviour
             invincibletimer = .5f;
             if (hp <= 0)
             {
-                
-                for (int i = 0; i < Director.allCreatures.Count; i++)
-                {
-                    if (Director.allCreatures[i] == gameObject)
-                    {
-                        Director.allCreatures.RemoveAt(i);
-                        break;
-                    }
-                }
-                Director.Log(creaturename + " was killed by " + killer, 0);
-                Director.Log("+1 G", 1);
-                foreach (Transform t in transform)
-                {
-                    t.AddComponent<Rigidbody>();
-                    float diff = 2f;
-                    t.GetComponent<Rigidbody>().velocity = new Vector3(UnityEngine.Random.Range(-diff, diff), UnityEngine.Random.Range(-diff, diff), UnityEngine.Random.Range(-diff, diff));
-                    t.AddComponent<Limbs>();
-                    t.parent = null;
-                }
-                Destroy(gameObject);
+                KillThis(attacker, false);
             }
         }
+    }
+    public void KillThis(string killer, bool silent)
+    {
+        if (!silent)
+        {
+            Director.Log(creaturename + " was killed by " + killer, 0);
+            Director.Log("+1 G", 1);
+        }
+
+        for (int i = 0; i < Director.allCreatures.Count; i++)
+        {
+            if (Director.allCreatures[i] == gameObject)
+            {
+                Director.allCreatures.RemoveAt(i);
+                break;
+            }
+        }
+        for (int i = 0; i < Director.playerCreatures.Count; i++)
+        {
+            if (Director.playerCreatures[i] == gameObject)
+            {
+                Director.playerCreatures.RemoveAt(i);
+                break;
+            }
+        }
+
+
+        foreach (Transform t in transform)
+        {
+            t.AddComponent<Rigidbody>();
+            float diff = 2f;
+            t.GetComponent<Rigidbody>().velocity = new Vector3(UnityEngine.Random.Range(-diff, diff), UnityEngine.Random.Range(-diff, diff), UnityEngine.Random.Range(-diff, diff));
+            t.AddComponent<Limbs>();
+            t.parent = null;
+        }
+        Destroy(nametag);
+        Destroy(gameObject);
     }
     private void OnCollisionEnter(Collision c)
     {

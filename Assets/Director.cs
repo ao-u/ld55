@@ -15,14 +15,12 @@ public class Director : MonoBehaviour
     public static int gold = 0;
     void Start()
     {
+        gold = 10;
         GameObject.Find("Money").GetComponent<TextMeshProUGUI>().text = gold + " G";
         endtext = GameObject.Find("endtext");
         Application.targetFrameRate = 144;
 
-        for (int i = 0; i < 100; i++)
-        {
-            Debug.Log(GetRandomName());
-        }
+       
         
         
 
@@ -31,10 +29,19 @@ public class Director : MonoBehaviour
     }
     void SpawnCreatures()
     {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < playerCreatures.Count; i++)
+        {
+            playerCreatures[i].transform.position = new Vector3(-7f, 1f, i * 1.5f);
+            allCreatures.Add(playerCreatures[i]);
+            playerCreatures[i].GetComponent<Creature>().state = "fight";
+        }
+
+
+        for (int i = 0; i < 4; i++)
         {
             GameObject g = Instantiate(Resources.Load<GameObject>("prefabs/Creature"), new Vector3(Random.Range(-5f, 5f), 1f, Random.Range(-5f, 5f)), Random.rotation);
-            g.GetComponent<Creature>().team = i < 5 ? 0 : 1;
+            g.transform.position = new Vector3(7f, 1f, i * 1.5f);
+            g.GetComponent<Creature>().team = 1;
             g.GetComponent<Creature>().state = "fight";
             allCreatures.Add(g);
         }
@@ -42,6 +49,7 @@ public class Director : MonoBehaviour
     public static int choice = 0;
     IEnumerator GameFlow()
     {
+        int summonprice = 1;
         while (true)
         {
             if (state == "fight")
@@ -75,34 +83,57 @@ public class Director : MonoBehaviour
                     }
                     
                     
+                    
+                    for (int i = 0; i < playerCreatures.Count; i++) {
+                        playerCreatures[i].transform.position = GameObject.Find("place" + i).transform.position;
+                        playerCreatures[i].transform.position += new Vector3(0f, 1f, 0f);
+                        playerCreatures[i].GetComponent<Creature>().state = "standstill";
+                    }
                     for (int i = 0; i < allCreatures.Count; i++)
                     {
-                        Destroy(allCreatures[i]);
-                        allCreatures.RemoveAt(i);
-                        i--;
+                        if (allCreatures[i].GetComponent<Creature>().team != 0)
+                        {
+                            allCreatures[i].GetComponent<Creature>().KillThis("", true);
+                            Debug.Log("killed enemy!");
+                        }
                     }
+
                     yield return new WaitForSeconds(2f);
                     choice = 0;
+                    summonprice = 1;
                     state = "shop";
                 }
             }
             else if (state == "shop")
             {
+                
+                
+                GameObject.Find("summonbutton").transform.Find("Canvas").Find("goldtext").GetComponent<TextMeshProUGUI>().text = summonprice + " G";
+
+
+
                 endtextActive = false;
                 yield return new WaitUntil(() => choice != 0);
-                if (choice == 1)
+                if (choice == 1 && playerCreatures.Count < 4 && gold >= summonprice)
                 {
-                    GameObject g = Instantiate(Resources.Load<GameObject>("prefabs/Creature"), new Vector3(Random.Range(-5f, 5f), 1f, Random.Range(-5f, 5f)), Random.rotation);
+                    Director.Log("-" + summonprice + " G", -summonprice);
+                    summonprice++;
+                    GameObject g = Instantiate(Resources.Load<GameObject>("prefabs/Creature"), new Vector3(0f, -100f, 0f), Random.rotation);
+                    playerCreatures.Add(g);
+                    g.transform.position = GameObject.Find("place" + (playerCreatures.Count - 1)).transform.position;
+                    g.transform.position += new Vector3(0f, 1f, 0f);
                     g.GetComponent<Creature>().team = 0;
-                    g.GetComponent<Creature>().state = "none";
+                    g.GetComponent<Creature>().state = "standstill";
                 }
                 else if (choice == 2)
                 {
                     state = "fight";
+                    yield return new WaitForSeconds(1f);
                 }
+                choice = 0;
                 
             }
-            yield return new WaitForSeconds(.2f);
+            yield return new WaitForFixedUpdate();
 
         }
         
@@ -134,8 +165,8 @@ public class Director : MonoBehaviour
         string name = "";
         name += prefix[Random.Range(0, prefix.Count)];
         int middles = Random.Range(0, 2);
-        for (int j = 0; j < middles; j++)
-            name += middle[Random.Range(0, middle.Count)];
+        //for (int j = 0; j < middles; j++)
+            //name += middle[Random.Range(0, middle.Count)];
         name += suffix[Random.Range(0, suffix.Count)];
         return name;
     }
@@ -190,7 +221,7 @@ public class Director : MonoBehaviour
         }
         for (int i = 0; i < moneylogs.Count; i++)
         {
-            moneylogtimers[i] -= .05f;
+            moneylogtimers[i] -= .03f;
             moneylogs[i].GetComponent<TextMeshProUGUI>().color = new Color(moneylogs[i].GetComponent<TextMeshProUGUI>().color.r, moneylogs[i].GetComponent<TextMeshProUGUI>().color.g, moneylogs[i].GetComponent<TextMeshProUGUI>().color.b, moneylogtimers[i]);
             if (moneylogtimers[i] < 0f)
             {
@@ -208,8 +239,8 @@ public class Director : MonoBehaviour
         }
         else if (state == "shop")
         {
-            transform.localEulerAngles = Vector3.Lerp(transform.localEulerAngles, new Vector3(0f, 0f, 0f), .1f);
-            transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(0f, 22f, 0f), .1f);
+            transform.localEulerAngles = Vector3.Lerp(transform.localEulerAngles, new Vector3(15f, 45f, 0f), .1f);
+            transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(-20f, 25f, 10f), .1f);
             transform.parent.localEulerAngles = Vector3.Lerp(transform.parent.localEulerAngles, new Vector3(0f, 0f, 0f), .1f);
         }
        

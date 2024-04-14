@@ -13,7 +13,7 @@ public class Button : MonoBehaviour
         baseSize = transform.localScale;
     }
 
-    void FixedUpdate()
+    private void Update()
     {
         state = "none";
         Ray r = Camera.main.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
@@ -25,20 +25,16 @@ public class Button : MonoBehaviour
                 state = "hovered";
             }
         }
-        if (state == "hovered" && Input.GetKey(KeyCode.Mouse0))
+        if (state == "hovered" && Input.GetKeyDown(KeyCode.Mouse0))
         {
             Director.choice = choice;
         }
-
-
-
-        Vector3 targetRotation = Vector3.zero;
+    }
+    void FixedUpdate()
+    {
         Vector3 targetSize = baseSize;
-        if (state == "none")
-        {
-            targetRotation = Vector3.zero;
-        }
-        else if (state == "hovered")
+        Vector3 targetRotation = new Vector3(0f, 45f, 0f);
+        if (state == "hovered")
         {
             targetSize = baseSize * 1.1f;
         }

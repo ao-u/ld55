@@ -30,10 +30,13 @@ public class Button : MonoBehaviour
             Director.choice = choice;
         }
     }
+    public bool flipped = false;
     void FixedUpdate()
     {
         Vector3 targetSize = baseSize;
         Vector3 targetRotation = new Vector3(0f, 45f, 0f);
+        if (flipped) targetRotation = new Vector3(0f, 225f, 0f);
+
         if (state == "hovered")
         {
             targetSize = baseSize * 1.1f;

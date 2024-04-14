@@ -16,7 +16,7 @@ public class Director : MonoBehaviour
     public static int gold = 0;
     void Start()
     {
-        gold = 10;
+        gold = 100;
         GameObject.Find("Money").GetComponent<TextMeshProUGUI>().text = gold + " G";
         endtext = GameObject.Find("endtext");
         Application.targetFrameRate = 144;
@@ -118,16 +118,47 @@ public class Director : MonoBehaviour
 
                 endtextActive = false;
                 yield return new WaitUntil(() => choice != 0);
-                if (choice == 1 && playerCreatures.Count < 4 && gold >= summonprice)
+                if (choice == 1)
                 {
-                    Director.Log("-" + summonprice + " G", -summonprice);
-                    summonprice++;
-                    GameObject g = Instantiate(Resources.Load<GameObject>("prefabs/Creature"), new Vector3(999f, -900f, 999f), Random.rotation);
-                    playerCreatures.Add(g);
-                    g.transform.position = GameObject.Find("place" + (playerCreatures.Count - 1)).transform.position;
-                    g.transform.position += new Vector3(0f, 1f, 0f);
-                    g.GetComponent<Creature>().team = 0;
-                    g.GetComponent<Creature>().state = "standstill";
+                    if (playerCreatures.Count < 4 && gold >= summonprice)
+                    {
+                        Director.Log("-" + summonprice + " G", -summonprice);
+                        summonprice++;
+                        GameObject g = Instantiate(Resources.Load<GameObject>("prefabs/Creature"), new Vector3(999f, -900f, 999f), Random.rotation);
+                        
+                        g.transform.position = GameObject.Find("altar").transform.position;
+                        g.transform.position += new Vector3(0f, 1f, 0f);
+                        g.GetComponent<Creature>().team = 0;
+                        g.GetComponent<Creature>().state = "standstill";
+
+                        GameObject.Find("summonbutton").GetComponent<Button>().flipped = true;
+                        GameObject.Find("continuebutton").GetComponent<Button>().flipped = true;
+
+                        choice = 0;
+                        yield return new WaitUntil(() => choice != 0);
+
+                        //keep
+                        if (choice == 1)
+                        {
+                            playerCreatures.Add(g);
+                            g.transform.position = GameObject.Find("place" + (playerCreatures.Count - 1)).transform.position;
+                            g.transform.position += new Vector3(0f, 1f, 0f);
+                        }
+                        //discard
+                        else if (choice == 2)
+                        {
+                            g.GetComponent<Creature>().KillThis("", true);
+                        }
+                        GameObject.Find("summonbutton").GetComponent<Button>().flipped = false;
+                        GameObject.Find("continuebutton").GetComponent<Button>().flipped = false;
+                        //g.transform.position = GameObject.Find("place" + (playerCreatures.Count - 1)).transform.position;
+                        //g.transform.position += new Vector3(0f, 1f, 0f);
+                    }
+                    else
+                    {
+                        //playsound bwrong
+                    }
+                    
                 }
                 else if (choice == 2)
                 {
@@ -243,8 +274,8 @@ public class Director : MonoBehaviour
         }
         else if (state == "shop")
         {
-            transform.localEulerAngles = Vector3.Lerp(transform.localEulerAngles, new Vector3(13f, 45f, 0f), .1f);
-            transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(-18f, 25f, 12f), .1f);
+            transform.localEulerAngles = Vector3.Lerp(transform.localEulerAngles, new Vector3(17.5f, 45f, 0f), .1f);
+            transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(-16f, 26.8f, 14f), .1f);
             transform.parent.localEulerAngles = Vector3.Lerp(transform.parent.localEulerAngles, new Vector3(0f, 0f, 0f), .1f);
         }
        

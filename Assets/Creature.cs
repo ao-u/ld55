@@ -77,10 +77,10 @@ public class Creature : MonoBehaviour
         arms.transform.SetParent(transform, false);
 
         //randomize eyes
-        GameObject eyes = Instantiate(Resources.Load<GameObject>("prefabs/eyes/eyes1"), transform.parent);
+        GameObject eyes = Instantiate(Resources.Load<GameObject>("prefabs/eyes/eyes" + Random.Range(1, 3)), transform.parent);
 
         //slightly randomize eye position and scale
-        eyes.transform.position = new Vector3(eyes.transform.position.x, eyes.transform.position.y + Random.Range(-0.2f, 0f));
+        eyes.transform.position = new Vector3(eyes.transform.position.x, eyes.transform.position.y + Random.Range(-0.2f, 0f), eyes.transform.position.z + 0.8f);
 
         float eyex = Random.Range(-0.15f, 0.15f);
         float eyey = Random.Range(-0.15f, 0.15f);
@@ -90,6 +90,21 @@ public class Creature : MonoBehaviour
             child.localScale = new Vector3(child.localScale.x + eyex, child.localScale.y + eyey, child.localScale.z + eyez);
         }
         eyes.transform.SetParent(transform, false);
+
+        //randomize mouth
+        GameObject mouth = Instantiate(Resources.Load<GameObject>("prefabs/mouth/mouth" + Random.Range(1, 7)), transform.parent);
+
+        //slightly randomize mouth position and scale
+        mouth.transform.position = new Vector3(mouth.transform.position.x, mouth.transform.position.y + Random.Range(-0.6f, -0.3f), mouth.transform.position.z + 0.9f);
+
+        float mouthx = Random.Range(-0.15f, 0.15f);
+        float mouthy = Random.Range(-0.15f, 0.15f);
+        float mouthz = Random.Range(-0.01f, 0.01f);
+        foreach (Transform child in mouth.transform)
+        {
+            child.localScale = new Vector3(child.localScale.x + mouthx, child.localScale.y + mouthy, child.localScale.z + mouthz);
+        }
+        mouth.transform.SetParent(transform, false);
 
 
         nametag = Instantiate(Resources.Load<GameObject>("prefabs/NameTag"), Vector3.zero, Quaternion.identity, GameObject.Find("MainCanvas").transform);

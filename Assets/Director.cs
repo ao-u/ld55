@@ -37,7 +37,7 @@ public class Director : MonoBehaviour
             playerCreatures[i].transform.position = new Vector3(-7f, 1f, i * 1.5f);
             allCreatures.Add(playerCreatures[i]);
             playerCreatures[i].GetComponent<Creature>().state = "fight";
-            playerCreatures[i].GetComponent<Creature>().hp = playerCreatures[i].GetComponent<Creature>().maxhp * 2;
+            playerCreatures[i].GetComponent<Creature>().hp = playerCreatures[i].GetComponent<Creature>().maxhp * 4;
         }
 
 
@@ -300,8 +300,8 @@ public class Director : MonoBehaviour
         }
         else if (state == "shop")
         {
-            transform.localEulerAngles = Vector3.Lerp(transform.localEulerAngles, new Vector3(17.5f, 45f, 0f), .1f);
-            transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(-18f, 24.2f, 12f), .1f);
+            transform.localEulerAngles = Vector3.Lerp(transform.localEulerAngles, new Vector3(26f, 45f, 0f), .1f);
+            transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(-18f, 27.7f, 12f), .1f);
             transform.parent.localEulerAngles = Vector3.Lerp(transform.parent.localEulerAngles, new Vector3(0f, 0f, 0f), .1f);
         }
        

@@ -20,7 +20,7 @@ public class Creature : MonoBehaviour
 
     public int maxhp;
     public int speed;
-    public int attackspeed;
+    public int damage;
 
     void Start()
     {
@@ -29,7 +29,7 @@ public class Creature : MonoBehaviour
         int maxstatvalue = 5;
         maxhp = 0;
         speed = 0;
-        attackspeed = 0;
+        damage = 0;
         for (int i = 0; i < totalstats; i++)
         {
             int rng = Random.Range(0, 3);
@@ -41,16 +41,16 @@ public class Creature : MonoBehaviour
             {
                 speed++;
             }
-            else if (rng == 2 && attackspeed < maxstatvalue)
+            else if (rng == 2 && damage < maxstatvalue)
             {
-                attackspeed++;
+                damage++;
             }
             else i--;
         }
 
-        Debug.Log(maxhp + " max hp " + speed + " speed " + attackspeed + " atk speed");
+        Debug.Log(maxhp + " max hp " + speed + " speed " + damage + " atk speed");
 
-        hp = maxhp * 2;
+        hp = maxhp * 4;
 
         rb = GetComponent<Rigidbody>();
         aud = GetComponent<AudioSource>();
@@ -132,17 +132,17 @@ public class Creature : MonoBehaviour
         nametag.transform.position = Camera.main.WorldToScreenPoint(transform.position);
         nametag.transform.position -= new Vector3(0, 150f, 0f);
 
-        statpage = Instantiate(Resources.Load<GameObject>("prefabs/LogText"), Vector3.zero, Quaternion.identity, GameObject.Find("MainCanvas").transform);
+        statpage = Instantiate(Resources.Load<GameObject>("prefabs/StatPage"), Vector3.zero, Quaternion.identity, GameObject.Find("MainCanvas").transform);
         statpage.transform.localScale *= .6f;
         statpagestring =
-            "MAX HP:\t" + string.Concat(Enumerable.Repeat("X", maxhp)) + "\n" +
-            "SPEED:\t" + string.Concat(Enumerable.Repeat("X", speed)) + "\n" +
-            "ATK SPD:\t" + string.Concat(Enumerable.Repeat("X", attackspeed));
+            "HP:\t" + string.Concat(Enumerable.Repeat("X", maxhp)) + "\n" +
+            "SPD:\t" + string.Concat(Enumerable.Repeat("X", speed)) + "\n" +
+            "DMG:\t" + string.Concat(Enumerable.Repeat("X", damage));
 
         statpage.GetComponent<TextMeshProUGUI>().text = statpagestring;
 
         statpage.transform.position = Camera.main.WorldToScreenPoint(transform.position);
-        statpage.transform.position += new Vector3(-70f, 170f, 0f);
+        statpage.transform.position += new Vector3(-20f, 170f, 0f);
 
         FindNearestEnemy();
     }
@@ -155,7 +155,7 @@ public class Creature : MonoBehaviour
         nametag.transform.position -= new Vector3(0, 150f, 0f);
 
         statpage.transform.position = Camera.main.WorldToScreenPoint(transform.position);
-        statpage.transform.position += new Vector3(-70f, 170f, 0f);
+        statpage.transform.position += new Vector3(-20f, 150f, 0f);
 
         if (transform.position.y < -5f)
         {
@@ -222,12 +222,12 @@ public class Creature : MonoBehaviour
     }
     public bool invincible;
     float invincibletimer = -1f;
-    public void TakeDamage(string attacker)
+    public void TakeDamage(string attacker, int damage)
     {
         if (invincibletimer < 0f)
         {
             aud.PlayOneShot(Resources.Load<AudioClip>("audio/sound" + Random.Range(1, 6)));
-            hp--;
+            hp -= damage;
             invincibletimer = .5f;
             if (hp <= 0)
             {
@@ -298,13 +298,13 @@ public class Creature : MonoBehaviour
         }
         else if (rng == 2)
         {
-            attackspeed++;
+            damage++;
         }
 
         statpagestring =
-            "MAX HP:\t" + string.Concat(Enumerable.Repeat("X", maxhp)) + "\n" +
-            "SPEED:\t" + string.Concat(Enumerable.Repeat("X", speed)) + "\n" +
-            "ATK SPD:\t" + string.Concat(Enumerable.Repeat("X", attackspeed));
+            "HP:\t" + string.Concat(Enumerable.Repeat("X", maxhp)) + "\n" +
+            "SPD:\t" + string.Concat(Enumerable.Repeat("X", speed)) + "\n" +
+            "DMG:\t" + string.Concat(Enumerable.Repeat("X", damage));
 
         statpage.GetComponent<TextMeshProUGUI>().text = statpagestring;
     }
@@ -319,7 +319,7 @@ public class Creature : MonoBehaviour
                 c.gameObject.GetComponent<Rigidbody>().velocity = -c.transform.forward * 10f;
                 rb.AddForceAtPosition(c.transform.up * 400f, transform.position, ForceMode.Force);
                 //rb.AddForceAtPosition(new Vector3(Random.Range(-2f, 2f), Random.Range(-2f, 2f)) * 800f , transform.position, ForceMode.Force);
-                cc.TakeDamage(creaturename);
+                cc.TakeDamage(creaturename, damage);
                 FindNearestEnemy();
                 
             }

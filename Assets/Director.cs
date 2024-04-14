@@ -1,3 +1,4 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -111,11 +112,13 @@ public class Director : MonoBehaviour
             }
             else if (state == "shop")
             {
-                
-                
+                for (int i = 0; i < playerCreatures.Count; i++ )
+                {
+                    GameObject.Find("upgrade" + i).transform.Find("Canvas").Find("goldtext").GetComponent<TextMeshProUGUI>().text = playerCreatures[i].GetComponent<Creature>().upgradeprice + " G";
+                }
                 GameObject.Find("summonbutton").transform.Find("Canvas").Find("goldtext").GetComponent<TextMeshProUGUI>().text = summonprice + " G";
 
-
+                
 
                 endtextActive = false;
                 yield return new WaitUntil(() => choice != 0);
@@ -137,7 +140,7 @@ public class Director : MonoBehaviour
                         GameObject.Find("continuebutton").GetComponent<Button>().flipped = true;
 
                         choice = 0;
-                        yield return new WaitUntil(() => choice != 0);
+                        yield return new WaitUntil(() => choice != 0 && choice < 9);
                         GetComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("audio/click1"));
                         //keep
                         if (choice == 1)
@@ -168,6 +171,26 @@ public class Director : MonoBehaviour
                     state = "fight";
                     SpawnCreatures();
                     yield return new WaitForSeconds(1f);
+                }
+                else 
+                {
+                    int index = choice - 10;
+                    if (playerCreatures.Count > index && gold >= playerCreatures[index].GetComponent<Creature>().upgradeprice)
+                    {
+                        
+                        GetComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("audio/click1"));
+                        playerCreatures[index].GetComponent<Creature>().Upgrade();
+
+                        Director.Log("-" + playerCreatures[index].GetComponent<Creature>().upgradeprice + " G", -playerCreatures[index].GetComponent<Creature>().upgradeprice);
+                        playerCreatures[index].GetComponent<Creature>().upgradeprice++;
+
+                        //GameObject.Find("upgrade" + index).transform.Find("Canvas").Find("goldtext").GetComponent<TextMeshProUGUI>().text = playerCreatures[index].GetComponent<Creature>().upgradeprice + " G";
+                    }
+                    else
+                    {
+                        GetComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("audio/click3"));
+                    }
+                    
                 }
                 choice = 0;
                 
@@ -280,7 +303,7 @@ public class Director : MonoBehaviour
         else if (state == "shop")
         {
             transform.localEulerAngles = Vector3.Lerp(transform.localEulerAngles, new Vector3(17.5f, 45f, 0f), .1f);
-            transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(-18f, 26.8f, 12f), .1f);
+            transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(-18f, 24.2f, 12f), .1f);
             transform.parent.localEulerAngles = Vector3.Lerp(transform.parent.localEulerAngles, new Vector3(0f, 0f, 0f), .1f);
         }
        

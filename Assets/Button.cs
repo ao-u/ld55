@@ -27,8 +27,22 @@ public class Button : MonoBehaviour
         }
         if (state == "hovered" && Input.GetKeyDown(KeyCode.Mouse0))
         {
+            if (!(name.Contains("upgrade") && flipped))
             Director.choice = choice;
         }
+
+        if (name.Contains("upgrade"))
+        {
+            if (Director.playerCreatures.Count > choice - 10)
+            {
+                flipped = false;
+            }
+            else
+            {
+                flipped = true;
+            }
+        }
+
     }
     public bool flipped = false;
     void FixedUpdate()
@@ -36,7 +50,14 @@ public class Button : MonoBehaviour
         Vector3 targetSize = baseSize;
         Vector3 targetRotation = new Vector3(0f, 45f, 0f);
         if (flipped) targetRotation = new Vector3(0f, 225f, 0f);
-
+        if (name.Contains("upgrade"))
+        {
+            targetRotation += new Vector3(20f, 0f, 0f);
+            if (flipped)
+            {
+                targetRotation -= new Vector3(40f, 0f, 0f);
+            }
+        }
         if (state == "hovered")
         {
             targetSize = baseSize * 1.1f;

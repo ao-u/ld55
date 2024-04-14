@@ -24,6 +24,7 @@ public class Creature : MonoBehaviour
 
     void Start()
     {
+        upgradeprice = 1;
         int totalstats = 10;
         int maxstatvalue = 5;
         maxhp = 0;
@@ -111,7 +112,7 @@ public class Creature : MonoBehaviour
         if (team == 0) c = Color.red;
         else c = Color.blue;
 
-        float diff = .15f, diff2 = .3f;
+        float diff = .25f, diff2 = .5f;
         Color basediff = c + new Color(Random.Range(-diff2, diff2), Random.Range(-diff2, diff2), Random.Range(-diff2, diff2));
 
         body.GetComponentInChildren<MeshRenderer>().materials[0] = Resources.Load<Material>("materials/enemycolor");
@@ -273,6 +274,30 @@ public class Creature : MonoBehaviour
         Destroy(statpage);
         Destroy(nametag);
         Destroy(gameObject);
+    }
+    public int upgradeprice;
+    public void Upgrade()
+    {
+        int rng = Random.Range(0, 3);
+        if (rng == 0)
+        {
+            maxhp++;
+        }
+        else if (rng == 1)
+        {
+            speed++;
+        }
+        else if (rng == 2)
+        {
+            attackspeed++;
+        }
+
+        statpagestring =
+            "MAX HP:\t" + string.Concat(Enumerable.Repeat("X", maxhp)) + "\n" +
+            "SPEED:\t" + string.Concat(Enumerable.Repeat("X", speed)) + "\n" +
+            "ATK SPD:\t" + string.Concat(Enumerable.Repeat("X", attackspeed));
+
+        statpage.GetComponent<TextMeshProUGUI>().text = statpagestring;
     }
     private void OnCollisionEnter(Collision c)
     {

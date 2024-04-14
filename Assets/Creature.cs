@@ -28,7 +28,7 @@ public class Creature : MonoBehaviour
         upgradeprice = 1;
         if (team == 0)
         {
-            totalstats = Random.Range(8, 18);
+            totalstats = Random.Range(4, 13);
         }
         int maxstatvalue = 99;
         maxhp = 0;

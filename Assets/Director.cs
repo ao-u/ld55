@@ -4,6 +4,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Director : MonoBehaviour
 {
@@ -81,22 +82,25 @@ public class Director : MonoBehaviour
                             endtext.GetComponent<TextMeshProUGUI>().text = "Defeated!";
                         }
                     }
-                    
-                    
-                    
+
+                    yield return new WaitForSeconds(1f);
+
                     for (int i = 0; i < playerCreatures.Count; i++) {
                         playerCreatures[i].transform.position = GameObject.Find("place" + i).transform.position;
                         playerCreatures[i].transform.position += new Vector3(0f, 1f, 0f);
                         playerCreatures[i].GetComponent<Creature>().state = "standstill";
                     }
-                    for (int i = 0; i < allCreatures.Count; i++)
+                    object[] objj = FindObjectsOfType(typeof(GameObject));
+                    foreach (object o in objj)
                     {
-                        if (allCreatures[i].GetComponent<Creature>().team != 0)
+                        GameObject g = (GameObject)o;
+                        if (g.TryGetComponent<Creature>(out var t))
                         {
-                            allCreatures[i].GetComponent<Creature>().KillThis("", true);
-                            Debug.Log("killed enemy!");
+                            if (t.team != 0)
+                            t.KillThis("", true);
                         }
                     }
+                    allCreatures.Clear();
 
                     yield return new WaitForSeconds(2f);
                     choice = 0;
@@ -118,7 +122,7 @@ public class Director : MonoBehaviour
                 {
                     Director.Log("-" + summonprice + " G", -summonprice);
                     summonprice++;
-                    GameObject g = Instantiate(Resources.Load<GameObject>("prefabs/Creature"), new Vector3(0f, -100f, 0f), Random.rotation);
+                    GameObject g = Instantiate(Resources.Load<GameObject>("prefabs/Creature"), new Vector3(999f, -900f, 999f), Random.rotation);
                     playerCreatures.Add(g);
                     g.transform.position = GameObject.Find("place" + (playerCreatures.Count - 1)).transform.position;
                     g.transform.position += new Vector3(0f, 1f, 0f);
@@ -239,12 +243,30 @@ public class Director : MonoBehaviour
         }
         else if (state == "shop")
         {
-            transform.localEulerAngles = Vector3.Lerp(transform.localEulerAngles, new Vector3(15f, 45f, 0f), .1f);
-            transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(-20f, 25f, 10f), .1f);
+            transform.localEulerAngles = Vector3.Lerp(transform.localEulerAngles, new Vector3(13f, 45f, 0f), .1f);
+            transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(-18f, 25f, 12f), .1f);
             transform.parent.localEulerAngles = Vector3.Lerp(transform.parent.localEulerAngles, new Vector3(0f, 0f, 0f), .1f);
         }
        
         Color c = endtext.GetComponent<TextMeshProUGUI>().color;
         endtext.GetComponent<TextMeshProUGUI>().color = new Color(c.r, c.g, c.b, Mathf.Lerp(c.a, endtextActive ? 1f : 0f, .2f));
+
+
+        if (Input.GetKey(KeyCode.A))
+        {
+            
+            foreach (GameObject g in allCreatures)
+            {
+                Debug.Log(g.GetComponent<Creature>().creaturename + " name in all creatures " + g.GetComponent<Creature>().team);
+            }
+            
+            foreach (GameObject g in playerCreatures)
+            {
+                Debug.Log(g.GetComponent<Creature>().creaturename + " name in player creatures " + g.GetComponent<Creature>().team);
+            }
+
+            Debug.Log(playerCreatures.Count + " TOTAL PLAYER CREATURES");
+            Debug.Log(allCreatures.Count + " TOTAL CREATURES");
+        }
     }
 }

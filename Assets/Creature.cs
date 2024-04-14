@@ -54,14 +54,12 @@ public class Creature : MonoBehaviour
 
         FindNearestEnemy();
     }
-    
-
-
+    public string state = "none";
     void FixedUpdate()
     {
+        if (state == "fight")
         Movement();
-        if (invincibletimer > 0f) invincibletimer -= .02f;
-        invincible = invincibletimer > 0f;
+        
     }
     
     void Movement()
@@ -79,12 +77,15 @@ public class Creature : MonoBehaviour
         float maxspeed = 10f;
         Vector3 r = rb.velocity;
         rb.velocity = new Vector3(Mathf.Clamp(r.x, -maxspeed, maxspeed), Mathf.Clamp(r.y, -maxspeed * 2f, 0f), Mathf.Clamp(r.z, -maxspeed, maxspeed));
+
+        if (invincibletimer > 0f) invincibletimer -= .02f;
+        invincible = invincibletimer > 0f;
     }
     void FindNearestEnemy()
     {
         float lowestDistance = 99999f;
         targetEnemy = gameObject;
-        foreach (GameObject g in Director.creatures)
+        foreach (GameObject g in Director.allCreatures)
         {
             if (g != gameObject && g.GetComponent<Creature>().team != team)
             {
@@ -110,11 +111,11 @@ public class Creature : MonoBehaviour
             if (hp <= 0)
             {
                 
-                for (int i = 0; i < Director.creatures.Count; i++)
+                for (int i = 0; i < Director.allCreatures.Count; i++)
                 {
-                    if (Director.creatures[i] == gameObject)
+                    if (Director.allCreatures[i] == gameObject)
                     {
-                        Director.creatures.RemoveAt(i);
+                        Director.allCreatures.RemoveAt(i);
                         break;
                     }
                 }

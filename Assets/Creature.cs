@@ -50,7 +50,7 @@ public class Creature : MonoBehaviour
 
         Debug.Log(maxhp + " max hp " + speed + " speed " + attackspeed + " atk speed");
 
-        hp = maxhp;
+        hp = maxhp * 2;
 
         rb = GetComponent<Rigidbody>();
         aud = GetComponent<AudioSource>();
@@ -112,7 +112,7 @@ public class Creature : MonoBehaviour
         if (team == 0) c = Color.red;
         else c = Color.blue;
 
-        float diff = .25f, diff2 = .5f;
+        float diff = .2f, diff2 = .4f;
         Color basediff = c + new Color(Random.Range(-diff2, diff2), Random.Range(-diff2, diff2), Random.Range(-diff2, diff2));
 
         body.GetComponentInChildren<MeshRenderer>().materials[0] = Resources.Load<Material>("materials/enemycolor");
@@ -141,6 +141,9 @@ public class Creature : MonoBehaviour
 
         statpage.GetComponent<TextMeshProUGUI>().text = statpagestring;
 
+        statpage.transform.position = Camera.main.WorldToScreenPoint(transform.position);
+        statpage.transform.position += new Vector3(-70f, 170f, 0f);
+
         FindNearestEnemy();
     }
     string statpagestring;
@@ -153,6 +156,11 @@ public class Creature : MonoBehaviour
 
         statpage.transform.position = Camera.main.WorldToScreenPoint(transform.position);
         statpage.transform.position += new Vector3(-70f, 170f, 0f);
+
+        if (transform.position.y < -5f)
+        {
+            KillThis("the void", false);
+        }
     }
     void FixedUpdate()
     {
@@ -180,15 +188,16 @@ public class Creature : MonoBehaviour
         if (targetEnemy == null) FindNearestEnemy();
         Quaternion targetRotation = Quaternion.LookRotation(targetEnemy.transform.position - transform.position);
         targetRotation = Quaternion.Euler(new Vector3(0f,  targetRotation.eulerAngles.y ,0f));
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 7f * Time.deltaTime);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
 
         Quaternion standuprot = Quaternion.Euler(new Vector3(0f, transform.eulerAngles.y, 0f));
-        transform.rotation = Quaternion.Slerp(transform.rotation, standuprot, 10f * Time.deltaTime);
-        rb.AddRelativeForce(Vector3.forward * Time.deltaTime * 1000f * speedasmult);
-
+        transform.rotation = Quaternion.Slerp(transform.rotation, standuprot, 20f * Time.deltaTime);
+        rb.AddRelativeForce(Vector3.forward * Time.deltaTime * 500f * speedasmult);
+        rb.AddRelativeForce(new Vector3(Random.Range(-1f, 1f), 0f, 0f) * Time.deltaTime * 50f * speedasmult);
         float maxspeed = 10f * speedasmult;
         Vector3 r = rb.velocity;
-        rb.velocity = new Vector3(Mathf.Clamp(r.x, -maxspeed, maxspeed), Mathf.Clamp(r.y, -maxspeed * 2f, 0f), Mathf.Clamp(r.z, -maxspeed, maxspeed));
+        rb.velocity += new Vector3(0, -100f, 0f);
+        rb.velocity = new Vector3(Mathf.Clamp(r.x, -maxspeed, maxspeed), Mathf.Clamp(r.y, -maxspeed * 10f, 2f), Mathf.Clamp(r.z, -maxspeed, maxspeed));
 
         if (invincibletimer > 0f) invincibletimer -= .02f;
         invincible = invincibletimer > 0f;
@@ -306,12 +315,18 @@ public class Creature : MonoBehaviour
             Creature cc = c.gameObject.GetComponent<Creature>();
             if (cc.team != team)
             {
-                rb.AddForceAtPosition(-transform.forward * 200f + transform.up * 100f, transform.position, ForceMode.Force);
+                //rb.AddForceAtPosition(-c.transform.forward * 300f, transform.position, ForceMode.Force);
+                c.gameObject.GetComponent<Rigidbody>().velocity = -c.transform.forward * 10f;
+                rb.AddForceAtPosition(c.transform.up * 400f, transform.position, ForceMode.Force);
+                //rb.AddForceAtPosition(new Vector3(Random.Range(-2f, 2f), Random.Range(-2f, 2f)) * 800f , transform.position, ForceMode.Force);
                 cc.TakeDamage(creaturename);
                 FindNearestEnemy();
                 
             }
             
         }
+    }
+    private void OnCollisionStay(Collision collision)
+    {
     }
 }

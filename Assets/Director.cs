@@ -37,7 +37,7 @@ public class Director : MonoBehaviour
             playerCreatures[i].transform.position = new Vector3(-7f, 1f, i * 1.5f);
             allCreatures.Add(playerCreatures[i]);
             playerCreatures[i].GetComponent<Creature>().state = "fight";
-            playerCreatures[i].GetComponent<Creature>().hp = playerCreatures[i].GetComponent<Creature>().maxhp;
+            playerCreatures[i].GetComponent<Creature>().hp = playerCreatures[i].GetComponent<Creature>().maxhp * 2;
         }
 
 
@@ -156,8 +156,6 @@ public class Director : MonoBehaviour
                         }
                         GameObject.Find("summonbutton").GetComponent<Button>().flipped = false;
                         GameObject.Find("continuebutton").GetComponent<Button>().flipped = false;
-                        //g.transform.position = GameObject.Find("place" + (playerCreatures.Count - 1)).transform.position;
-                        //g.transform.position += new Vector3(0f, 1f, 0f);
                     }
                     else
                     {

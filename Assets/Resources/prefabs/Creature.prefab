@@ -77,7 +77,12 @@ MonoBehaviour:
   team: 0
   creaturename: 
   hp: 0
+  maxhp: 0
+  speed: 0
+  attackspeed: 0
+  state: none
   invincible: 0
+  upgradeprice: 0
 --- !u!65 &8399726678681065601
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -85,7 +90,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5945696366114951233}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 7de357a61ad827547b5b407d20859ab9, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0

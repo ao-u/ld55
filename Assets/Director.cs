@@ -4,6 +4,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.UIElements;
 
 public class Director : MonoBehaviour
@@ -56,7 +57,6 @@ public class Director : MonoBehaviour
         {
             if (state == "fight")
             {
-                if (allCreatures.Count == 0) SpawnCreatures();
                 List<int> teams = new List<int>();
                 foreach (GameObject g in allCreatures)
                 {
@@ -88,7 +88,7 @@ public class Director : MonoBehaviour
 
                     for (int i = 0; i < playerCreatures.Count; i++) {
                         playerCreatures[i].transform.position = GameObject.Find("place" + i).transform.position;
-                        playerCreatures[i].transform.position += new Vector3(0f, 1f, 0f);
+                        playerCreatures[i].transform.position += new Vector3(0f, 2f, 0f);
                         playerCreatures[i].GetComponent<Creature>().state = "standstill";
                     }
                     object[] objj = FindObjectsOfType(typeof(GameObject));
@@ -123,6 +123,7 @@ public class Director : MonoBehaviour
                 {
                     if (playerCreatures.Count < 4 && gold >= summonprice)
                     {
+                        GetComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("audio/click1"));
                         Director.Log("-" + summonprice + " G", -summonprice);
                         summonprice++;
                         GameObject g = Instantiate(Resources.Load<GameObject>("prefabs/Creature"), new Vector3(999f, -900f, 999f), Random.rotation);
@@ -137,13 +138,13 @@ public class Director : MonoBehaviour
 
                         choice = 0;
                         yield return new WaitUntil(() => choice != 0);
-
+                        GetComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("audio/click1"));
                         //keep
                         if (choice == 1)
                         {
                             playerCreatures.Add(g);
                             g.transform.position = GameObject.Find("place" + (playerCreatures.Count - 1)).transform.position;
-                            g.transform.position += new Vector3(0f, 1f, 0f);
+                            g.transform.position += new Vector3(0f, 2f, 0f);
                         }
                         //discard
                         else if (choice == 2)
@@ -157,13 +158,15 @@ public class Director : MonoBehaviour
                     }
                     else
                     {
-                        //playsound bwrong
+                        GetComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("audio/click3"));
                     }
                     
                 }
                 else if (choice == 2)
                 {
+                    GetComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("audio/click1"));
                     state = "fight";
+                    SpawnCreatures();
                     yield return new WaitForSeconds(1f);
                 }
                 choice = 0;
@@ -198,6 +201,7 @@ public class Director : MonoBehaviour
 
     public static string GetRandomName()
     {
+        if (Random.Range(0, 1000) == 0) return "John";
         string name = "";
         name += prefix[Random.Range(0, prefix.Count)];
         int middles = Random.Range(0, 2);
@@ -276,7 +280,7 @@ public class Director : MonoBehaviour
         else if (state == "shop")
         {
             transform.localEulerAngles = Vector3.Lerp(transform.localEulerAngles, new Vector3(17.5f, 45f, 0f), .1f);
-            transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(-16f, 26.8f, 14f), .1f);
+            transform.localPosition = Vector3.Lerp(transform.localPosition, new Vector3(-18f, 26.8f, 12f), .1f);
             transform.parent.localEulerAngles = Vector3.Lerp(transform.parent.localEulerAngles, new Vector3(0f, 0f, 0f), .1f);
         }
        

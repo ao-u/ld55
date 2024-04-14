@@ -106,14 +106,33 @@ public class Creature : MonoBehaviour
         }
         mouth.transform.SetParent(transform, false);
 
+        
+        Color c;
+        if (team == 0) c = Color.red;
+        else c = Color.blue;
+
+        float diff = .15f, diff2 = .3f;
+        Color basediff = c + new Color(Random.Range(-diff2, diff2), Random.Range(-diff2, diff2), Random.Range(-diff2, diff2));
+
+        body.GetComponentInChildren<MeshRenderer>().materials[0] = Resources.Load<Material>("materials/enemycolor");
+        body.GetComponentInChildren<MeshRenderer>().materials[0].color = basediff;
+
+        MeshRenderer[] armss = arms.GetComponentsInChildren<MeshRenderer>();
+        
+        armss[0].materials[0] = Resources.Load<Material>("materials/enemycolor");
+        armss[0].materials[0].color = basediff + new Color(Random.Range(-diff, diff), Random.Range(-diff, diff), Random.Range(-diff, diff));
+        armss[1].materials[0] = Resources.Load<Material>("materials/enemycolor");
+        armss[1].materials[0].color = basediff + new Color(Random.Range(-diff, diff), Random.Range(-diff, diff), Random.Range(-diff, diff));
+
 
         nametag = Instantiate(Resources.Load<GameObject>("prefabs/NameTag"), Vector3.zero, Quaternion.identity, GameObject.Find("MainCanvas").transform);
         nametag.GetComponent<TextMeshProUGUI>().text = creaturename;
+        nametag.GetComponent<TextMeshProUGUI>().color = Color.Lerp(c, Color.white, .3f);
         nametag.transform.position = Camera.main.WorldToScreenPoint(transform.position);
-        nametag.transform.position -= new Vector3(0, 90f, 0f);
+        nametag.transform.position -= new Vector3(0, 150f, 0f);
 
         statpage = Instantiate(Resources.Load<GameObject>("prefabs/LogText"), Vector3.zero, Quaternion.identity, GameObject.Find("MainCanvas").transform);
-       
+        statpage.transform.localScale *= .6f;
         statpagestring =
             "MAX HP:\t" + string.Concat(Enumerable.Repeat("X", maxhp)) + "\n" +
             "SPEED:\t" + string.Concat(Enumerable.Repeat("X", speed)) + "\n" +
@@ -129,10 +148,10 @@ public class Creature : MonoBehaviour
     {
         //Vector3 realpos = transform.position - new Vector3(0, 5f, 0f);
         nametag.transform.position = Camera.main.WorldToScreenPoint(transform.position);
-        nametag.transform.position -= new Vector3(0, 90f, 0f);
+        nametag.transform.position -= new Vector3(0, 150f, 0f);
 
         statpage.transform.position = Camera.main.WorldToScreenPoint(transform.position);
-        statpage.transform.position += new Vector3(-20f, 200f, 0f);
+        statpage.transform.position += new Vector3(-70f, 170f, 0f);
     }
     void FixedUpdate()
     {
@@ -231,7 +250,16 @@ public class Creature : MonoBehaviour
             }
         }
 
-
+        foreach (Transform t in transform)
+        {
+            if (t.childCount > 0)
+            {
+                foreach (Transform tt in t)
+                {
+                    tt.parent = transform;
+                }
+            }
+        }
         foreach (Transform t in transform)
         {
             t.AddComponent<Rigidbody>();
@@ -240,6 +268,7 @@ public class Creature : MonoBehaviour
             t.GetComponent<Rigidbody>().velocity = new Vector3(UnityEngine.Random.Range(-diff, diff), UnityEngine.Random.Range(-diff, diff), UnityEngine.Random.Range(-diff, diff));
             t.AddComponent<Limbs>();
             t.parent = null;
+
         }
         Destroy(statpage);
         Destroy(nametag);

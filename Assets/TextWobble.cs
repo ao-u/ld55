@@ -18,12 +18,6 @@ public class TextWobble : MonoBehaviour
         wordIndexes = new List<int> { 0 };
         wordLengths = new List<int>();
         string s = textMesh.text;
-        //for (int index = s.IndexOf(' '); index > -1; index = s.IndexOf(' ', index + 1))
-        //{
-        //    wordLengths.Add(index - wordIndexes[wordIndexes.Count - 1]);
-        //    wordIndexes.Add(index + 1);
-        //}
-        //wordLengths.Add(s.Length - wordIndexes[wordIndexes.Count - 1]);
         for (int i = 0; i < s.Length; i++)
         {
             wordLengths.Add(1);

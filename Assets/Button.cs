@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using UnityEditor.SearchService;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Button : MonoBehaviour
 {
@@ -61,6 +63,11 @@ public class Button : MonoBehaviour
         if (state == "hovered")
         {
             targetSize = baseSize * 1.1f;
+        }
+        if (SceneManager.GetActiveScene().name == "menu")
+        {
+            targetRotation = new Vector3(0f, 0f, 0f);
+
         }
 
         transform.localScale = Vector3.Lerp(transform.localScale, targetSize, .3f);

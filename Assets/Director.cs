@@ -6,6 +6,7 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class Director : MonoBehaviour
@@ -18,7 +19,7 @@ public class Director : MonoBehaviour
     public static int gold = 0;
     void Start()
     {
-        gold = 100;
+        gold = 10;
         GameObject.Find("Money").GetComponent<TextMeshProUGUI>().text = gold + " G";
         endtext = GameObject.Find("endtext");
         Application.targetFrameRate = 144;
@@ -86,6 +87,9 @@ public class Director : MonoBehaviour
                         else
                         {
                             endtext.GetComponent<TextMeshProUGUI>().text = "Defeated!";
+
+                            yield return new WaitForSeconds(2f);
+                            SceneManager.LoadScene("menu");
                         }
                     }
 

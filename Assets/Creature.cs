@@ -15,6 +15,8 @@ public class Creature : MonoBehaviour
     
     GameObject nametag;
     GameObject statpage;
+
+    GameObject center;
     //stats
     public int totalstats = 10;
     public int hp;
@@ -25,10 +27,11 @@ public class Creature : MonoBehaviour
 
     void Start()
     {
+        center = GameObject.Find("CameraHolder");
         upgradeprice = 1;
         if (team == 0)
         {
-            totalstats = Random.Range(4, 13);
+            totalstats = Random.Range(4, 13 + Director.level);
         }
         int maxstatvalue = 99;
         maxhp = 0;
@@ -207,11 +210,37 @@ public class Creature : MonoBehaviour
 
         if (invincibletimer > 0f) invincibletimer -= .02f;
         invincible = invincibletimer > 0f;
+
+
+        float distanceToCenter = Vector3.Distance(transform.position, center.transform.position);
+        
+        if (distanceToCenter > 8f)
+        {
+            Vector3 dir = (center.transform.position - transform.position).normalized;
+            dir = new Vector3(dir.x, 0f, dir.z);
+            rb.AddForce(dir * 20f);
+            Debug.DrawRay(transform.position, dir * 2f, Color.red);
+            Vector3 targetdir = Quaternion.Euler(targetRotation.eulerAngles) * Vector3.forward;
+            Debug.DrawRay(transform.position, targetdir  * 2f, Color.blue);
+
+            if (team == 0)
+            Debug.Log((targetdir - dir).magnitude);
+
+            float badangle = (targetdir - dir).magnitude;
+
+            if (badangle > 1f)
+            {
+                rb.AddForce(dir * 100f);
+                rb.AddForce(transform.up * 10f);
+                rb.velocity *= .8f;
+            }
+            
+        }
     }
     void FindNearestEnemy()
     {
         float lowestDistance = 99999f;
-        targetEnemy = GameObject.Find("CameraHolder");
+        targetEnemy = center;
         foreach (GameObject g in Director.allCreatures)
         {
             if (g != gameObject && g.GetComponent<Creature>().team != team)
@@ -331,8 +360,12 @@ public class Creature : MonoBehaviour
             if (cc.team != team)
             {
                 //rb.AddForceAtPosition(-c.transform.forward * 300f, transform.position, ForceMode.Force);
-                c.gameObject.GetComponent<Rigidbody>().velocity = -c.transform.forward * 10f;
-                rb.AddForceAtPosition(c.transform.up * 400f, transform.position, ForceMode.Force);
+                float speeddiff = speed - cc.speed;
+                float speeddiffasmult = Mathf.Clamp(speeddiff / 3f, .5f, 2f);
+                //c.gameObject.GetComponent<Rigidbody>().velocity = -c.transform.forward * 10f;
+                c.gameObject.GetComponent<Rigidbody>().AddForce(speeddiffasmult * -c.transform.forward * 20f, ForceMode.Impulse);
+
+                rb.AddForce(c.transform.up * 5f, ForceMode.Impulse);
                 //rb.AddForceAtPosition(new Vector3(Random.Range(-2f, 2f), Random.Range(-2f, 2f)) * 800f , transform.position, ForceMode.Force);
                 cc.TakeDamage(creaturename, damage);
                 FindNearestEnemy();

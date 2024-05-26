@@ -42,7 +42,7 @@ public class Director : MonoBehaviour
             GameObject appear = Instantiate(Resources.Load<GameObject>("prefabs/appear"), playerCreatures[i].transform.position, Random.rotation);
         }
 
-        int enemies = level > 10 ? 4 + (level - 10) : 4;
+        int enemies = level > 7 ? 4 + (level - 7) : 4;
         for (int i = 0; i < enemies; i++)
         {
             GameObject g = Instantiate(Resources.Load<GameObject>("prefabs/Creature"), new Vector3(Random.Range(-5f, 5f), 1f, Random.Range(-5f, 5f)), Random.rotation);
@@ -329,7 +329,16 @@ public class Director : MonoBehaviour
         endtext.GetComponent<TextMeshProUGUI>().color = new Color(c.r, c.g, c.b, Mathf.Lerp(c.a, endtextActive ? 1f : 0f, .2f));
 
 
-        if (Input.GetKey(KeyCode.A))
+
+        if (Input.GetKey(KeyCode.S))
+        {
+            Time.timeScale = 2.5f;
+        }
+        else
+        {
+            Time.timeScale = 1f;
+        }
+        /*if (Input.GetKey(KeyCode.A))
         {
             
             foreach (GameObject g in allCreatures)
@@ -344,7 +353,7 @@ public class Director : MonoBehaviour
 
             Debug.Log(playerCreatures.Count + " TOTAL PLAYER CREATURES");
             Debug.Log(allCreatures.Count + " TOTAL CREATURES");
-        }
+        }*/
     }
     
 }

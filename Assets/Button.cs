@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -31,6 +30,7 @@ public class Button : MonoBehaviour
         {
             if (!(name.Contains("upgrade") && flipped))
             Director.choice = choice;
+            Shake(4f);
         }
 
         if (name.Contains("upgrade"))
@@ -71,9 +71,15 @@ public class Button : MonoBehaviour
         }
 
         transform.localScale = Vector3.Lerp(transform.localScale, targetSize, .3f);
-        transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.Euler(targetRotation), .1f);
+        transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.Euler(targetRotation), .2f);
         float offset = (Mathf.Sin(Time.fixedTime * 2f) / 10f);
         float offset1 = (Mathf.Sin(Time.fixedTime * 3f) / 15f);
         transform.localEulerAngles = new Vector3(transform.localEulerAngles.x + offset1, transform.localEulerAngles.y, transform.localEulerAngles.z + offset);
     }
+    public void Shake(float amount)
+    {
+        float div = 3f;
+        transform.localEulerAngles += new Vector3(RandSign() * amount + Random.Range(-amount / div, amount / div), 0f, RandSign() * amount + Random.Range(-amount / div, amount / div));
+    }
+    public static float RandSign() { return Random.Range(0, 2) * 2 - 1; }
 }
